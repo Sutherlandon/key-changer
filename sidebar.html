@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/solid.css" integrity="sha384-+0VIRx+yz1WBcCTXBkVQYIBVNEFH1eP6Zknm16roZCyeNg2maWEpk/l/KsyFKs7G" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/fontawesome.css" integrity="sha384-jLuaxTTBR42U2qJ/pm4JRouHkEDHkVqH0T1nyQXn1mZ7Snycpf6Rl25VBNthU4z0" crossorigin="anonymous">
+    <style>
+      /* element styles */
+      button, select {
+        width: 100%;
+      }
+      label {
+        font-weight: bold;
+      }
+      
+      /* class styles */
+      .border-btm {
+        border-bottom: 1px solid #EDEDED;
+      }
+      .col {
+        padding: 0 0.5em;
+      }
+      .col-fixed {
+        flex-grow: 0;
+      }
+      .col-100 {
+        width: 100%;
+      }
+      .loader {
+        background-color: #616161;
+        border-radius: 0.25em;
+        color: white;
+        display: none;
+        font-weight: bold;
+        margin: 0.5em;
+        padding: 0.5em;
+        text-align: center;
+      }
+      .loader i {
+        margin-right: 1em;
+      }
+      .primary {
+        background: #4285f4;
+        color: white;
+      }
+      .row {
+        align-items: center;
+        display: flex;
+        margin-bottom: 0.5em;
+        padding-bottom: 0.5em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class='sidebar'>
+      <div class='row border-btm'>
+        <div class='col'>
+          <label>Chord Style</label>
+        </div>
+        <div class='col'>
+          <label>
+            <input type=radio name='chord-style' value='sharps' checked />
+            Sharps (#)
+          </label>
+        </div>
+        <div class='col'>
+          <label>
+            <input type=radio name='chord-style' value='flats' />
+            Flats (b)
+          </label>
+        </div>
+      </div>
+      <div class='row'>
+        <div class='col'>
+          <button id='change-key-up'><i class="fas fa-angle-double-up"></i> Key Up</button>
+        </div>
+        <div class='col'>
+          <button id='change-key-down'><i class="fas fa-angle-double-down"></i> Key Down</button>
+        </div>
+      </div>
+      <div class='row'>
+        <div class='col'>
+          <label for='current-key'>Selector</label>
+        </div>
+      </div>
+      <div class='row'>
+        <div class='col'>    
+          <select id='current-key'>
+            <option value='A'>A</option>
+            <option value='A#'>A#/Bb</option>
+            <option value='B'>B</option>
+            <option value='C'>C</option>
+            <option value='C#'>C#/Db</option>
+            <option value='D'>D</option>
+            <option value='D#'>D#/Eb</option>
+            <option value='E'>E</option>
+            <option value='F'>F</option>
+            <option value='F#'>F#/Gb</option>
+            <option value='G'>G</option>
+            <option value='G#'>G#/Ab</option>
+          </select>
+        </div>
+        <div class='col-fixed'>
+          <i class="fas fa-arrow-right"></i>
+        </div>
+        <div class='col'>    
+          <select id='target-key'>
+             <option value='A'>A</option>
+            <option value='A#'>A#/Bb</option>
+            <option value='B'>B</option>
+            <option value='C'>C</option>
+            <option value='C#'>C#/Db</option>
+            <option value='D'>D</option>
+            <option value='D#'>D#/Eb</option>
+            <option value='E'>E</option>
+            <option value='F'>F</option>
+            <option value='F#'>F#/Gb</option>
+            <option value='G'>G</option>
+            <option value='G#'>G#/Ab</option>
+          </select>
+        </div>
+        <div class='col'>
+          <button id='change-key' class='primary'>Go</button>
+        </div>
+      </div>
+       <div class='row'>
+        <div class='col col-100'>
+          <div id='loader' class='loader'><i class="fas fa-sync fa-spin"></i> Working</button>
+        </div>
+      </div>
+    </div>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>
+      $(function() {
+        $('#change-key').click(changeKey);
+        $('#change-key-up').click(changeKeyUp);
+        $('#change-key-down').click(changeKeyDown);
+      });
+      
+      function lockSubmit() {
+        $('#loader').show();
+        $('#change-key').prop('disabled', true);
+        $('#change-key-up').prop('disabled', true);
+        $('#change-key-down').prop('disabled', true);
+      }
+      
+      function unlockSubmit() {
+        $('#loader').hide();
+        $('#change-key').prop('disabled', false);
+        $('#change-key-up').prop('disabled', false);
+        $('#change-key-down').prop('disabled', false);
+      }
+    
+      function changeKey() {
+        lockSubmit();
+        google.script.run
+          .withSuccessHandler(
+            function(text, element) {
+              unlockSubmit();
+            })
+          .withFailureHandler(
+            function(msg, element) {
+              unlockSubmit();
+            })
+          .handleKeyChange(
+            $('#current-key').val(),
+            $('#target-key').val(),
+            $('input[name="chord-style"]:checked').val()
+          )
+          
+      }
+      
+      function changeKeyUp() {
+        lockSubmit();
+        google.script.run
+          .withSuccessHandler(
+            function(text, element) {
+              unlockSubmit();
+            })
+          .withFailureHandler(
+            function(msg, element) {
+              unlockSubmit();
+            })
+          .handleKeyChangeUp($('input[name="chord-style"]:checked').val())
+      }
+      
+      function changeKeyDown() {
+        lockSubmit();
+        google.script.run
+           .withSuccessHandler(
+            function(text, element) {
+              unlockSubmit();
+            })
+          .withFailureHandler(
+            function(msg, element) {
+              unlockSubmit();
+            })
+          .handleKeyChangeDown($('input[name="chord-style"]:checked').val())
+      }
+    </script>
+  </body>
+</html>
+
+
