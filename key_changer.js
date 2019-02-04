@@ -25,26 +25,24 @@ function onInstall(e) {
  * Creates a menu entry in the Google Docs UI when the document is opened.
  * This method is only used by the regular add-on, and is never called by
  * the mobile add-on version.
+ * 
+ * Runs in AuthMode.NONE or AuthMode.LIMITED
  *
  * @param {object} e The event parameter for a simple onOpen trigger. To
  *     determine which authorization mode (ScriptApp.AuthMode) the trigger is
  *     running in, inspect e.authMode.
  */
 function onOpen(e) {
-
-  console.log('event', e);
-  console.log('auth', e.authMode);
-  const menu = DocumentApp.getUi().createAddonMenu();
-  
-  if (!e || e.authMode === ScriptApp.AuthMode.NONE) {
-    // TODO: Write the 'auth' Function..
-    menu.addItem('Authorize this add-on', 'auth');
-  } else {
-    menu.addItem('Show Sidebar', 'showSidebar');
-    PropertiesService.getDocumentProperties().setProperty('active_document_id', e.source.getId());
+  // build the addon menu
+  DocumentApp.getUi().createAddonMenu()
+    .addItem('Show Sidebar', 'showSidebar')
+    .addToUi();
+ 
+  // If the plugin is authorized, get the currently open document's id
+  if (e && e.authMode === ScriptApp.AuthMode.LIMITED) {
+    PropertiesService.getDocumentProperties()
+      .setProperty('active_document_id', e.source.getId());
   }
-
-  menu.addToUi();
 }
 
 
@@ -54,10 +52,10 @@ function onOpen(e) {
  * the mobile add-on version.
  */
 function showSidebar() {
-  var ui = HtmlService
-    .createHtmlOutputFromFile('sidebar')
-    .setTitle('Key Changer');
-  DocumentApp.getUi().showSidebar(ui);
+  DocumentApp.getUi().showSidebar(
+    HtmlService.createHtmlOutputFromFile('sidebar')
+      .setTitle('Key Changer')
+    );
 }
 
 /**
